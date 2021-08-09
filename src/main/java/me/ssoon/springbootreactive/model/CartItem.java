@@ -10,9 +10,9 @@ public class CartItem {
     public CartItem() {
     }
 
-    public CartItem(Item item, int quantity) {
+    public CartItem(Item item) {
         this.item = item;
-        this.quantity = quantity;
+        this.quantity = 1;
     }
 
     public Item getItem() {
@@ -47,5 +47,9 @@ public class CartItem {
     @Override
     public String toString() {
         return "CartItem{" + "item=" + item + ", quantity=" + quantity + '}';
+    }
+
+    public void increment() {
+        this.quantity++;
     }
 }
