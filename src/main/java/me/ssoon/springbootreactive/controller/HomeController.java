@@ -1,9 +1,9 @@
 package me.ssoon.springbootreactive.controller;
 
 import me.ssoon.springbootreactive.model.Cart;
-import me.ssoon.springbootreactive.model.CartItem;
 import me.ssoon.springbootreactive.repository.CartRepository;
 import me.ssoon.springbootreactive.repository.ItemRepository;
+import me.ssoon.springbootreactive.service.CartService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,10 +16,12 @@ public class HomeController {
 
     private final ItemRepository itemRepository;
     private final CartRepository cartRepository;
+    private final CartService cartService;
 
-    public HomeController(ItemRepository itemRepository, CartRepository cartRepository) {
+    public HomeController(ItemRepository itemRepository, CartRepository cartRepository, CartService cartService) {
         this.itemRepository = itemRepository;
         this.cartRepository = cartRepository;
+        this.cartService = cartService;
     }
 
     @GetMapping
@@ -33,22 +35,7 @@ public class HomeController {
 
     @PostMapping(value = "/add/{id}")
     public Mono<String> addToCart(@PathVariable String id) {
-        return this.cartRepository.findById("My Cart")
-                .defaultIfEmpty(new Cart("My Cart"))
-                .flatMap(cart -> cart.getCartItems().stream()
-                        .filter(cartItem -> cartItem.getItem().getId().equals(id))
-                        .findAny()
-                        .map(cartItem -> {
-                            cartItem.increment();
-                            return Mono.just(cart);
-                        })
-                        .orElseGet(() -> this.itemRepository.findById(id)
-                                .map(CartItem::new)
-                                .map(cartItem -> {
-                                    cart.getCartItems().add(cartItem);
-                                    return cart;
-                                })))
-                .flatMap(this.cartRepository::save)
+        return this.cartService.addToCart("My Cart", id)
                 .thenReturn("redirect:/");
     }
 }
