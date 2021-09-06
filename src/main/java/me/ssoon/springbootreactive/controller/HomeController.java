@@ -31,7 +31,7 @@ public class HomeController {
     @GetMapping
     public Mono<Rendering> home() {
         return Mono.just(Rendering.view("home")
-                .modelAttribute("items", itemRepository.findAll())
+                .modelAttribute("items", itemRepository.findAll().doOnNext(System.out::println))
                 .modelAttribute("cart", cartRepository.findById("My Cart")
                         .defaultIfEmpty(new Cart("My Cart")))
                 .build());
